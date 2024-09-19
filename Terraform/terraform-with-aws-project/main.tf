@@ -97,6 +97,7 @@ resource "aws_lb" "myalb" {
   internal           = false
   load_balancer_type = "application"
 
+#Assigning the SG & subnets to the LoadBalancer
   security_groups = [aws_security_group.webSg.id]
   subnets         = [aws_subnet.sub1.id, aws_subnet.sub2.id]
 
