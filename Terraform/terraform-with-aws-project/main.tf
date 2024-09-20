@@ -22,27 +22,39 @@ resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.myvpc.id
 }
 
+#To give access to the subnets we need to assign a route table. defines how the traffic has to flow in the subnet.
 resource "aws_route_table" "RT" {
   vpc_id = aws_vpc.myvpc.id
 
+ #attaching the route table with the public subnet
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw.id
   }
 }
 
+#aws route table association
 resource "aws_route_table_association" "rta1" {
-  subnet_id      = aws_subnet.sub1.id
+#what subnet want to attach
+subnet_id      = aws_subnet.sub1.id
   route_table_id = aws_route_table.RT.id
 }
 
 resource "aws_route_table_association" "rta2" {
-  subnet_id      = aws_subnet.sub2.id
+#what subnet want to attach 
+subnet_id      = aws_subnet.sub2.id
   route_table_id = aws_route_table.RT.id
 }
+####### vpc section has completed by now
 
+# Terminal: Terraform validate
+# Terraform Plan
+# terraform apply ----> Yes
+
+#security group
 resource "aws_security_group" "webSg" {
   name   = "web"
+  description = "Allow TLS inbound traffic and all outbound traffic"
   vpc_id = aws_vpc.myvpc.id
 
   ingress {
@@ -63,7 +75,7 @@ resource "aws_security_group" "webSg" {
   egress {
     from_port   = 0
     to_port     = 0
-    protocol    = "-1"
+    protocol    = "-1"   #semantically equivalent to all ports
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -72,11 +84,12 @@ resource "aws_security_group" "webSg" {
   }
 }
 
+#S3 Bucket
 resource "aws_s3_bucket" "example" {
   bucket = "abhisheksterraform2023project"
 }
 
-
+#EC2 Instance inside the subnet
 resource "aws_instance" "webserver1" {
   ami                    = "ami-0261755bbcb8c4a84"
   instance_type          = "t2.micro"
